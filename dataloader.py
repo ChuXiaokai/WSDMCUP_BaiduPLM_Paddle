@@ -28,24 +28,6 @@ def masked_fill(x, mask, value):
     y = paddle.full(x.shape, value, x.dtype)
     return paddle.where(mask, y, x)
 
-# def get_mask_subset_with_prob(mask, prob):
-#     # todo: mask.shape 是否可以解包?
-#     batch, seq_len = mask.shape
-#     max_masked = math.ceil(prob * seq_len)
-#     num_tokens = paddle.sum(mask, axis = -1, keepdim=True)	
-#     # to check
-#     mask_excess = (paddle.cumsum(paddle.to_tensor(mask, dtype="int32"), axis = -1) > (num_tokens * prob).ceil())
-#     mask_excess = mask_excess[:, :max_masked]
-#     rand = masked_fill(paddle.rand((batch, seq_len)), mask, -1e9) 
-#     _, sampled_indices = rand.topk(max_masked, axis=-1)
-#     sampled_indices = masked_fill(sampled_indices + 1, mask_excess, 0)
-#     new_mask = paddle.zeros((batch, seq_len + 1))
-#     # new_mask = paddle.scatter(new_mask, sampled_indices, 1)
-#     # to check
-#     # new_mask.scatter_(-1, sampled_indices, 1)
-#     return paddle.to_tensor(new_mask[:, 1:], dtype=paddle.bool)
-
-
 def get_mask_subset_with_prob(mask, prob):
     # todo: mask.shape 是否可以解包?
     batch, seq_len = mask.shape
@@ -169,6 +151,8 @@ class TestDataset(Dataset):
         
         if data_type == 'annotate':
             self.buffer, self.total_qids, self.total_labels, self.total_freqs = self.load_annotate_data(fpath)
+        elif data_type == 'finetune':
+            self.buffer, self.total_qids, self.total_labels, self.total_freqs = self.load_annotate_data(fpath, shuffle = True, binary_label = True)
         elif data_type == 'click':
             self.buffer, self.total_qids, self.total_labels = self.load_click_data(fpath)
         
@@ -178,7 +162,7 @@ class TestDataset(Dataset):
     def __getitem__(self, index):
         return self.buffer[index]
 
-    def load_annotate_data(self, fpath):
+    def load_annotate_data(self, fpath, shuffle = False, binary_label = False):
         print('load annotated data from ', fpath)
         total_qids = []
         buffer = []
@@ -187,6 +171,9 @@ class TestDataset(Dataset):
         for line in open(fpath, 'rb'):
             line_list = line.strip(b'\n').split(b'\t')
             qid, query, title, content, label, freq = line_list
+            if binary_label:
+                if int(label) >= 2: label = "1"
+                else: label = "0"
             if 0 <= int(freq) <= 2:  # high freq 
                 freq = 0
             elif 3 <= int(freq) <= 6:  # mid freq 
@@ -198,7 +185,8 @@ class TestDataset(Dataset):
             total_freqs.append(freq)
             src_input, src_segment, src_padding_mask = process_data(query, title, content, self.max_seq_len)
             buffer.append([src_input, src_segment, src_padding_mask, label])
-
+        if shuffle:
+            np.random.shuffle(buffer)
         return buffer, total_qids, total_labels, total_freqs
     
     def load_click_data(self, fpath):
