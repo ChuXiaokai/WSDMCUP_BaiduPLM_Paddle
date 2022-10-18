@@ -38,9 +38,9 @@ You can download the pre-trained language model from the table below:
 
 |   |Head=12|
 |---:|---:|
-| **Layer=12** |[To Update]()|
-| **Layer=6** |[To Update]()|
-| **Layer=3** |[To Update]()|
+| **Layer=12** |[baidu_ultr_paddle_12l_12h_768e](https://drive.google.com/file/d/1dSSA3RotV4CNG5WMdAQ4ZulipjXSPwD1/view?usp=sharing)|
+| **Layer=6** |[baidu_ultr_paddle_6l_12h_768e](https://drive.google.com/file/d/1tcQ-_VkKbV4ESE2Wu9FgAx9wVvO6Fc7w/view?usp=sharing)|
+| **Layer=3** |[baidu_ultr_paddle_3l_12h_768e](https://drive.google.com/file/d/1tcQ-_VkKbV4ESE2Wu9FgAx9wVvO6Fc7w/view?usp=sharing)|
 
 ### Train Data --- Large Scale Web Search Session Data
 The large scale web search session are available at [here](https://drive.google.com/drive/folders/1Q3bzSgiGh1D5iunRky6mb89LpxfAO73J?usp=sharing).
