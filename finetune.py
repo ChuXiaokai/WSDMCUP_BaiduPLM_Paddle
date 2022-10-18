@@ -112,4 +112,8 @@ for _ in range(config.finetune_epoch):
                 f'low {result_dict_ann["low_dcg@10"]:.6f} | '
                 f'pnr {result_dict_ann["pnr"]:.6f}'
             )
+            if idx % config.save_step == 0 and idx > 0:
+                paddle.save(model.state_dict(),
+                        'save_model/save_steps{}_{:.5f}.model'.format(idx, result_dict_ann['pnr'])
+                )
         idx += 1
