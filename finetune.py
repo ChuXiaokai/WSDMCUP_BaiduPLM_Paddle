@@ -88,7 +88,7 @@ for _ in range(config.finetune_epoch):
             model.eval()
             # ------------   evaluate on annotated data -------------- # 
             total_scores = []
-            for test_data_batch in vaild_annotate_loader:
+            for test_data_batch in test_annotate_loader:
                 src_input, src_segment, src_padding_mask, label = test_data_batch
                 score = model(
                     src=src_input, 
