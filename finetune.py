@@ -99,10 +99,10 @@ for _ in range(config.finetune_epoch):
                 total_scores += score
 
             result_dict_ann = evaluate_all_metric(
-                qid_list=vaild_annotate_dataset.total_qids, 
-                label_list=vaild_annotate_dataset.total_labels, 
+                qid_list=test_annotate_dataset.total_qids, 
+                label_list=test_annotate_dataset.total_labels, 
                 score_list=total_scores, 
-                freq_list=vaild_annotate_dataset.total_freqs
+                freq_list=test_annotate_dataset.total_freqs
             )
             print(
                 f'{idx}th step valid annotate | '
