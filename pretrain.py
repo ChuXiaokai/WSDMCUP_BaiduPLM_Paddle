@@ -15,7 +15,6 @@ from paddle.io import DataLoader
 from metrics import evaluate_all_metric
 from args import config
 import numpy as np
-import ipdb
 
 sys.path.append(os.getcwd())
 random.seed(config.seed)
