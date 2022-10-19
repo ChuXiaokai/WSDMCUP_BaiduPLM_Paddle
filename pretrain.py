@@ -19,7 +19,7 @@ import numpy as np
 sys.path.append(os.getcwd())
 random.seed(config.seed)
 np.random.seed(config.seed)
-paddle.set_device("gpu:3")
+paddle.set_device("gpu:0")
 paddle.seed(config.seed)
 print(config)
 train_dataset = TrainDataset(config.train_datadir, max_seq_len=config.max_seq_len, buffer_size=config.buffer_size)
