@@ -4,6 +4,9 @@
 @Author  :   Chu Xiaokai
 @Contact :   xiaokaichu@gmail.com
 '''
+
+#### use this file to load the model from paddle, but do not publish this file
+# python load_pretrain_model.py --emb_dim 768 --nlayer 3 --nhead 12 --dropout 0.1 --buffer_size 20 --eval_batch_size 20 --valid_click_path ./data/train_data/test.data.gz --save_step 5000 --init_parameters ./model3.pdparams --n_queries_for_each_gpu 10 --num_candidates 6 
 import time
 import sys
 import os
@@ -16,12 +19,15 @@ from metrics import evaluate_all_metric
 from args import config
 import numpy as np
 
+# control seed
+# 生成随机数，以便固定后续随机数，方便复现代码
 sys.path.append(os.getcwd())
 random.seed(config.seed)
 np.random.seed(config.seed)
 paddle.set_device("gpu:0")
 paddle.seed(config.seed)
 print(config)
+# load dataset 
 train_dataset = TrainDataset(config.train_datadir, max_seq_len=config.max_seq_len, buffer_size=config.buffer_size)
 train_data_loader = DataLoader(train_dataset, batch_size=config.train_batch_size)
 vaild_annotate_dataset = TestDataset(config.valid_annotate_path, max_seq_len=config.max_seq_len, data_type='annotate')
@@ -37,14 +43,19 @@ model = TransformerModel(
     dropout=config.dropout,
     mode='pretrain'
 )
-
 # load pretrained model
-# todo warm up model
+# load pretrained model
 if config.init_parameters != "":
     print('load warm up model ', config.init_parameters)
-    for k, v in paddle.load(config.init_parameters).items():
-        model.set_state_dict(paddle.load(config.init_parameters))
-    
+    ptm = paddle.load(config.init_parameters)
+    for k, v in model.state_dict().items():
+        if not k in ptm:    
+            pass
+            print("warning: not loading " + k)
+        else:
+            print("loading " + k)
+            v.set_value(ptm[k])
+            
 scheduler = get_linear_schedule_with_warmup(config.lr, config.warmup_steps,
                                         config.max_steps)
 decay_params = [
@@ -82,7 +93,7 @@ for src_input, src_segment, src_padding_mask, click_label in train_data_loader:
     mlm_loss = paddle.mean(mlm_loss)
     # click_label = click_label.cuda()
     ctr_loss = criterion(score, paddle.to_tensor(click_label, dtype=paddle.float32))
-    loss = mlm_loss + ctr_loss
+    loss = 0.0*mlm_loss + ctr_loss
     # paddle.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
     loss.backward()
     optimizer.step()
@@ -152,6 +163,6 @@ for src_input, src_segment, src_padding_mask, click_label in train_data_loader:
 
         if idx % config.save_step == 0 and idx > 0:
             paddle.save(model.state_dict(),
-                      'save_model/save_steps{}_{:.5f}_{:5f}.model'.format(idx, result_dict_ann['pnr'], result_dict_click['pnr'])
+                    'save_model/save_steps{}_{:.5f}_{:5f}.model'.format(idx, result_dict_ann['pnr'], result_dict_click['pnr'])
             )
     idx += 1
