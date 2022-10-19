@@ -16,7 +16,7 @@ from args import config
 random.seed(config.seed+1)
 random.seed(config.seed)
 np.random.seed(config.seed)
-paddle.set_device("gpu:3")
+paddle.set_device("gpu:0")
 paddle.seed(config.seed)
 print(config)
 exp_settings = config.exp_settings
