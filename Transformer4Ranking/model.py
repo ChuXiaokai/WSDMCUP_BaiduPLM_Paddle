@@ -134,8 +134,8 @@ class TransformerModel(nn.Layer):
             if self.training:
                 logits = self.to_logics(output.transpose([2, 0, 1]))  # shape = [bs, seq_len, num_tokens]
                 mlm_loss = F.cross_entropy(logits, # shape=[bs, num_class, seq_len]\
-                                            mlm_label,\
-                                            ignore_index=config._PAD_  # _pad
+                                            paddle.to_tensor(mlm_label, paddle.int64),\
+                                            ignore_index=config._PAD_ # _pad
                         ) 
                 return scores, mlm_loss
             else:  
