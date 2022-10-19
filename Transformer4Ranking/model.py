@@ -8,7 +8,6 @@ from paddle.nn import TransformerEncoder, TransformerEncoderLayer
 from paddle.optimizer.lr import LambdaDecay
 from args import config
 global_dtype = paddle.get_default_dtype()
-import ipdb
 
 def get_linear_schedule_with_warmup(learning_rate: float,
                                     num_warmup_steps,
